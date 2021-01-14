@@ -4,14 +4,86 @@
 package de.mw.devschool.wordcount;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertNotNull;
+import java.io.*;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class AppTest {
 
     @Test
     public void testAppHasAGreeting() {
-        App classUnderTest = new App();
+        App classUnderTest = new App(System.out, new BufferedReader(new InputStreamReader(System.in)));
         assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+    }
+
+    @Test
+    public void testAppIsRequestingInputNicely() throws IOException {
+        // GIVEN
+        final PrintStream outputSpy = Mockito.spy(System.out);
+        BufferedReader reader = mock(BufferedReader.class);
+        App underTest = new App(outputSpy, reader);
+
+        when(reader.readLine()).thenReturn("Mary had a little lamb");
+
+        // WHEN
+        final String aResult = underTest.a();
+
+        // THEN
+        assertThat(aResult, is("Mary had a little lamb"));
+        Mockito.verify(outputSpy).print(ArgumentMatchers.argThat((String s) -> s.trim().equals("Enter text:")));
+        Mockito.verify(reader).readLine();
+    }
+
+    @Test
+    public void testAppCountsWordsCorrectly() {
+        // GIVEN
+        final PrintStream outputSpy = Mockito.spy(System.out);
+        BufferedReader reader = mock(BufferedReader.class);
+        App underTest = new App(outputSpy, reader);
+
+        // WHEN
+        final int count = underTest.n("This String has 4 words");
+
+        // THEN
+        assertThat(count, is(4));
+    }
+
+    @Test
+    public void testAppPrintsWordCountCorrectly() {
+        // GIVEN
+        final PrintStream outputSpy = Mockito.spy(System.out);
+        BufferedReader reader = mock(BufferedReader.class);
+        App underTest = new App(outputSpy, reader);
+
+        // WHEN
+        underTest.out();
+
+        // THEN
+        verify(outputSpy).println(eq("The word count is: 5"));
+    }
+
+    @Test
+    public void integrationTest_ASSERT_THAT_word_count_is_calculated_and_printed_correctly_WHEN_input_differs_from_examples() throws IOException {
+        // GIVEN
+        final PrintStream outputSpy = Mockito.spy(System.out);
+        BufferedReader reader = mock(BufferedReader.class);
+        App underTest = new App(outputSpy, reader);
+        when(reader.readLine()).thenReturn("This is an unexpected test-sentence; it might really throw you off.");
+        final int expectedNumberOfWords = 12;
+
+        // WHEN
+        underTest.run();
+
+        // THEN
+        verify(reader).readLine();
+        ArgumentCaptor<String> outputArgCaptor = ArgumentCaptor.forClass(String.class);
+        verify(outputSpy).println(outputArgCaptor.capture());
+        assertTrue(outputArgCaptor.getValue().endsWith(" " + expectedNumberOfWords));
     }
 }
