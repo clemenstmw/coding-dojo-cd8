@@ -32,7 +32,7 @@ public class AppTest {
         when(reader.readLine()).thenReturn("Mary had a little lamb");
 
         // WHEN
-        final String aResult = underTest.a();
+        final String aResult = underTest.readInput();
 
         // THEN
         assertThat(aResult, is("Mary had a little lamb"));
@@ -48,7 +48,7 @@ public class AppTest {
         App underTest = new App(outputSpy, reader);
 
         // WHEN
-        final int count = underTest.n("This String has 4 words");
+        final int count = underTest.countWords("This String has 4 words");
 
         // THEN
         assertThat(count, is(4));
@@ -62,7 +62,7 @@ public class AppTest {
         App underTest = new App(outputSpy, reader);
 
         // WHEN
-        underTest.out();
+        underTest.printWordCount(5);
 
         // THEN
         verify(outputSpy).println(eq("The word count is: 5"));
