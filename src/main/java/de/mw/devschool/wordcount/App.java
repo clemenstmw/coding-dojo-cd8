@@ -3,7 +3,10 @@
  */
 package de.mw.devschool.wordcount;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 public class App {
     private final BufferedReader inputStream;
@@ -25,37 +28,34 @@ public class App {
         return "Hello world.";
     }
 
-
-
     void run() {
-        String input = "";
+        // read word input from user
+        String a = "";
         try {
-            input = readInput();
+            a = a();
         } catch (IOException e) {
-            outputStream.println("Failed to read input.");
+            outputStream.println("something went wrong :(");
             e.printStackTrace();
             System.exit(-1);
         }
 
-        int wordCount = countWords(input);
+        // calculate word count
+        int n = n(a);
 
-        printWordCount(wordCount);
+        // output to user
+        out();
     }
 
-
-
-    String readInput() throws IOException {
+    String a() throws IOException {
         outputStream.print("Enter text: ");
         return inputStream.readLine();
     }
 
-
-    int countWords(String text) {
-        return text.split(" ").length;
+    int n(String bla) {
+        return bla.split(" ").length;
     }
 
-
-    void printWordCount(int wordCount) {
-        outputStream.println("The word count is: " + wordCount);
+    void out() {
+        outputStream.println("The word count is: 5");
     }
 }
