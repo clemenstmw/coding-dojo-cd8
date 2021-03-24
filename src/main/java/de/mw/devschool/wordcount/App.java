@@ -5,6 +5,8 @@ package de.mw.devschool.wordcount;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +28,7 @@ public class App {
         final App app = new App(System.out, new BufferedReader(new InputStreamReader(System.in)), wordCounter);
         System.out.println(app.getGreeting());
 
-        app.run();
+        app.run(args.length > 0 ? args[0] : null);
     }
 
     private static Set<String> initializeStopWordsFile() {
@@ -51,23 +53,38 @@ public class App {
     }
 
 
-    void run() {
-        String input = "";
-        try {
-            input = readInput();
-        } catch (IOException e) {
-            outputStream.println("Failed to read input.");
-            e.printStackTrace();
-            System.exit(-1);
+    void run(String filename) {
+        String input = null;
+        if (filename != null) {
+            try {
+                input = readInputFromFile(filename);
+            } catch (IOException e) {
+                outputStream.println("Could not find/read input file. Opening CLI now...");
+            }
+        }
+
+        if (input == null) {
+            try {
+                input = readInputFromCli();
+            } catch (IOException e) {
+                outputStream.println("Failed to read input.");
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
 
         long wordCount = wordCounter.countWords(input);
-
         printWordCount(wordCount);
     }
 
+    private String readInputFromFile(String filename) throws IOException {
+        Path path = Path.of(filename);
+        outputStream.printf("Reading input from file '%s'%n", path.toAbsolutePath());
+        return Files.readString(path);
+    }
 
-    String readInput() throws IOException {
+
+    String readInputFromCli() throws IOException {
         outputStream.print("Enter text: ");
         return inputStream.readLine();
     }
