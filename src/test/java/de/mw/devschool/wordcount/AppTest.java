@@ -35,7 +35,7 @@ public class AppTest {
         when(reader.readLine()).thenReturn("Mary had a little lamb");
 
         // WHEN
-        final String aResult = underTest.readInput();
+        final String aResult = underTest.readInputFromCli();
 
         // THEN
         assertThat(aResult, is("Mary had a little lamb"));
@@ -68,7 +68,7 @@ public class AppTest {
         final int expectedNumberOfWords = 12;
 
         // WHEN
-        underTest.run();
+        underTest.run(null);
 
         // THEN
         verify(reader).readLine();
