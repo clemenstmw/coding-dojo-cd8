@@ -3,7 +3,10 @@
  */
 package de.mw.devschool.wordcount;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 public class App {
     private final BufferedReader inputStream;
@@ -26,7 +29,6 @@ public class App {
     }
 
 
-
     void run() {
         String input = "";
         try {
@@ -41,7 +43,6 @@ public class App {
 
         printWordCount(wordCount);
     }
-
 
 
     String readInput() throws IOException {
