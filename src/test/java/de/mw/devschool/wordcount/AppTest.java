@@ -21,7 +21,7 @@ public class AppTest {
 
     @Test
     public void testAppHasAGreeting() {
-        App classUnderTest = new App(System.out, new BufferedReader(new InputStreamReader(System.in)));
+        App classUnderTest = new App(System.out, new BufferedReader(new InputStreamReader(System.in)), null);
         assertNotNull("app should have a greeting", classUnderTest.getGreeting());
     }
 
@@ -30,7 +30,7 @@ public class AppTest {
         // GIVEN
         final PrintStream outputSpy = Mockito.spy(System.out);
         BufferedReader reader = mock(BufferedReader.class);
-        App underTest = new App(outputSpy, reader);
+        App underTest = new App(outputSpy, reader, new WordCounter());
 
         when(reader.readLine()).thenReturn("Mary had a little lamb");
 
@@ -43,26 +43,13 @@ public class AppTest {
         Mockito.verify(reader).readLine();
     }
 
-    @Test
-    public void testAppCountsWordsCorrectly() {
-        // GIVEN
-        final PrintStream outputSpy = Mockito.spy(System.out);
-        BufferedReader reader = mock(BufferedReader.class);
-        App underTest = new App(outputSpy, reader);
-
-        // WHEN
-        final int count = underTest.countWords("This String has 4 words");
-
-        // THEN
-        assertThat(count, is(4));
-    }
 
     @Test
     public void testAppPrintsWordCountCorrectly() {
         // GIVEN
         final PrintStream outputSpy = Mockito.spy(System.out);
         BufferedReader reader = mock(BufferedReader.class);
-        App underTest = new App(outputSpy, reader);
+        App underTest = new App(outputSpy, reader, new WordCounter());
 
         // WHEN
         underTest.printWordCount(5);
@@ -76,7 +63,7 @@ public class AppTest {
         // GIVEN
         final PrintStream outputSpy = Mockito.spy(System.out);
         BufferedReader reader = mock(BufferedReader.class);
-        App underTest = new App(outputSpy, reader);
+        App underTest = new App(outputSpy, reader, new WordCounter());
         when(reader.readLine()).thenReturn("This is an unexpected test-sentence; it might really throw you off.");
         final int expectedNumberOfWords = 12;
 

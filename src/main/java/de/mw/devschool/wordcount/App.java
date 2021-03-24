@@ -3,25 +3,47 @@
  */
 package de.mw.devschool.wordcount;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 public class App {
+    private static final String STOP_WORDS_FILE = "stopwords.txt";
+
     private final BufferedReader inputStream;
     private final PrintStream outputStream;
+    private final WordCounter wordCounter;
 
-    public App(PrintStream outputStream, BufferedReader inputStream) {
+    public App(PrintStream outputStream, BufferedReader inputStream, WordCounter wordCounter) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        this.wordCounter = wordCounter;
     }
 
     public static void main(String[] args) {
-        final App app = new App(System.out, new BufferedReader(new InputStreamReader(System.in)));
+        WordCounter wordCounter = new WordCounter(initializeStopWordsFile());
+        final App app = new App(System.out, new BufferedReader(new InputStreamReader(System.in)), wordCounter);
         System.out.println(app.getGreeting());
 
         app.run();
+    }
+
+    private static Set<String> initializeStopWordsFile() {
+        Set<String> stopWords = new HashSet<>();
+        try (InputStream stopWordsFile = App.class.getResourceAsStream(STOP_WORDS_FILE);
+             InputStreamReader inputStreamReader = new InputStreamReader(stopWordsFile, StandardCharsets.UTF_8);
+             BufferedReader reader = new BufferedReader(inputStreamReader)) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stopWords.add(line);
+            }
+
+        } catch (IOException e) {
+            System.err.printf("Could not find/read '%s' file. Continuing without any stopwords.%n", STOP_WORDS_FILE);
+        }
+        return stopWords;
     }
 
     public String getGreeting() {
@@ -39,7 +61,7 @@ public class App {
             System.exit(-1);
         }
 
-        int wordCount = countWords(input);
+        long wordCount = wordCounter.countWords(input);
 
         printWordCount(wordCount);
     }
@@ -50,13 +72,7 @@ public class App {
         return inputStream.readLine();
     }
 
-
-    int countWords(String text) {
-        return text.split(" ").length;
-    }
-
-
-    void printWordCount(int wordCount) {
+    void printWordCount(long wordCount) {
         outputStream.println("The word count is: " + wordCount);
     }
 }
