@@ -77,7 +77,7 @@ public class App {
         printWordCount(wordCount);
     }
 
-    private String readInputFromFile(String filename) throws IOException {
+    String readInputFromFile(String filename) throws IOException {
         Path path = Path.of(filename);
         outputStream.printf("Reading input from file '%s'%n", path.toAbsolutePath());
         return Files.readString(path);
