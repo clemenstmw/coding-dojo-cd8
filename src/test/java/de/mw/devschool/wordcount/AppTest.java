@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -59,12 +61,27 @@ public class AppTest {
     }
 
     @Test
+    public void testReadFileContent() throws URISyntaxException, IOException {
+        //GIVEN
+        final PrintStream outputSpy = Mockito.spy(System.out);
+        App underTest = new App(outputSpy, null, new WordCounter());
+        Path testFile = Path.of(getClass().getResource("test.txt").toURI());
+
+        //WHEN
+        String fileContent = underTest.readInputFromFile(testFile.toAbsolutePath().toString());
+
+        //THEN
+        verify(outputSpy).printf("Reading input from file '%s'%n", testFile.toAbsolutePath());
+        assertEquals("Das ist ein Test!", fileContent);
+    }
+
+    @Test
     public void integrationTest_ASSERT_THAT_word_count_is_calculated_and_printed_correctly_WHEN_input_differs_from_examples() throws IOException {
         // GIVEN
         final PrintStream outputSpy = Mockito.spy(System.out);
         BufferedReader reader = mock(BufferedReader.class);
         App underTest = new App(outputSpy, reader, new WordCounter());
-        when(reader.readLine()).thenReturn("This is an unexpected test-sentence; it might really throw you off.");
+        when(reader.readLine()).thenReturn("This is an unexpected test sentence; it might really throw you off.");
         final int expectedNumberOfWords = 12;
 
         // WHEN
@@ -72,6 +89,23 @@ public class AppTest {
 
         // THEN
         verify(reader).readLine();
+        ArgumentCaptor<String> outputArgCaptor = ArgumentCaptor.forClass(String.class);
+        verify(outputSpy).println(outputArgCaptor.capture());
+        assertTrue(outputArgCaptor.getValue().endsWith(" " + expectedNumberOfWords));
+    }
+
+    @Test
+    public void integrationTest_ASSERT_THAT_word_count_is_calculated_and_printed_correctly_WHEN_input_file_is_passed() throws URISyntaxException {
+        // GIVEN
+        final PrintStream outputSpy = Mockito.spy(System.out);
+        App underTest = new App(outputSpy, null, new WordCounter());
+        final int expectedNumberOfWords = 4;
+
+        Path testFile = Path.of(getClass().getResource("test.txt").toURI());
+        // WHEN
+        underTest.run(testFile.toAbsolutePath().toString());
+
+        // THEN
         ArgumentCaptor<String> outputArgCaptor = ArgumentCaptor.forClass(String.class);
         verify(outputSpy).println(outputArgCaptor.capture());
         assertTrue(outputArgCaptor.getValue().endsWith(" " + expectedNumberOfWords));
